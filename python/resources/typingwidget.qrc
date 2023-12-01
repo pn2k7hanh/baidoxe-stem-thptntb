@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="check-square-o">check-square-o.svg</file>
+    <file alias="square-o">square-o.svg</file>
+  </qresource>
+</RCC>
