@@ -12,7 +12,7 @@ class Adafruit(QThread):
 		QThread.__init__(self,parent)
 		self.__define()
 	def __define(self):
-		self.ada=Client('adantb','aio_ZoHe640lcxVlcFCGOFYAHxN01bVj')
+		self.ada=Client('adantb','aio_WswN65dMfpaaQPSl1qNEQD148vYr')
 		self.data_mutex=QMutex()
 		self.data=dict()
 		self.data['irsensor1']='unknowed'

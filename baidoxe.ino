@@ -89,7 +89,7 @@ void loop()
 //    if(bservo) moservo();
 //    else dongservo();
 //    bservo=!bservo;
-//    servo_time=millis();
+//    servo_timer=millis();
 //  }
   
   

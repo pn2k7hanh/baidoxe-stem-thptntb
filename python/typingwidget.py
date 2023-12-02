@@ -121,21 +121,21 @@ class TypingWidget(QWidget):
 			if self.changed:
 				self.changed=(not self.changed)
 				self.changeMode(self.changed)
-				if key in '123':
+				if key in '12':
 					self.changeType(int(key)-1)
-				elif key in '456':
-					if key=='5':
+				elif key in '345':
+					if key=='4':
 						# self.iduser=self.ui.idBox.text()
 						self.password=self.ui.pwBox.text()
 						self.park=self.ui.slBox.text()
 						self.getcar.emit()
-					elif key=='6':
+					elif key=='5':
 						# self.iduser=self.ui.idBox.text()
 						self.password=self.ui.pwBox.text()
 						self.park=self.ui.slBox.text()
 						self.parkcar.emit()
-					elif key=='4':
-						self.clear()
+					# elif key=='3':
+					self.clear()
 			# elif self.type==0:
 			# 	text=self.ui.idBox.text()
 			# 	text+=key

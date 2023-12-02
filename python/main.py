@@ -53,6 +53,7 @@ class Application(QApplication):
 		self.defaultPort=''
 		self.username=[]
 		self.password=[]
+		self.servotimerid=-1
 	def timerEvent(self,event):
 		if event.timerId()==self.ardtimerid:
 			if not self.ard.isOpen():
@@ -71,6 +72,7 @@ class Application(QApplication):
 						self.typingwidget.changeMode(False)
 						self.typingwidget.clear()
 						self.typingwidget.finishReading()
+						self.servotimerid=self.startTimer(10000,Qt.VeryCoarseTimer)
 					else:
 						qDebug('Failed to open '+portname+'!')
 						qDebug('Error: '+self.ard.errorString())
@@ -84,10 +86,14 @@ class Application(QApplication):
 					self.typingwidget.changeMode(False)
 					self.typingwidget.clear()
 					self.typingwidget.finishReading()
+					self.servotimerid=self.startTimer(10000,Qt.VeryCoarseTimer)
 				else:
 					qDebug('Failed to open '+portname+'!')
 					qDebug('Error: '+self.ard.errorString())
-		
+		# elif event.timerId()==self.servotimerid:
+		# 	data=0b00100001
+		# 	self.ard.write(bytes(chr(data),'utf-8'))
+		# 	qDebug('hmm')
 	@pyqtSlot()
 	def __receive_data_arduino(self):
 		data=self.ard.readAll()
@@ -110,6 +116,7 @@ class Application(QApplication):
 					if newvalue=='check-square-o':
 						data=setbit(data,tmp_i,1)
 				self.ard.write(bytes(chr(data),'utf-8'))
+				
 				pass
 			elif d['type']=='flamesensor':
 				# qDebug('flamesensor: '+str(d['value']))
@@ -145,9 +152,9 @@ class Application(QApplication):
 	
 	@pyqtSlot()
 	def __getcar(self):
-		data=0b00000000
 		park=self.typingwidget.park
-		
+		# show the led
+		data=0b00000000
 		if park!='':
 			if park in '0102':
 				if False:
@@ -165,7 +172,20 @@ class Application(QApplication):
 		self.ard.write(bytes(chr(data),'utf-8'))
 		self.typingwidget.finishReading()
 	def __parkcar(self):
-		
+		park=self.typingwidget.park
+		# show the led
+		data=0b00000000
+		if park!='':
+			if park in '0102':
+				if False:
+					pass
+				else:
+					data+=2**2+2**0
+			elif park in '0304':
+				if False:
+					pass
+				else:
+					data+=2**2+2**1
 		self.typingwidget.finishReading()
 			
 		
