@@ -91,7 +91,7 @@ class Application(QApplication):
 					qDebug('Failed to open '+portname+'!')
 					qDebug('Error: '+self.ard.errorString())
 		# elif event.timerId()==self.servotimerid:
-		# 	data=0b00100001
+		# 	data=0b00100011
 		# 	self.ard.write(bytes(chr(data),'utf-8'))
 		# 	qDebug('hmm')
 	@pyqtSlot()
@@ -115,7 +115,7 @@ class Application(QApplication):
 					tmp_i = (0 if (i in [0,1]) else 1)
 					if newvalue=='check-square-o':
 						data=setbit(data,tmp_i,1)
-				self.ard.write(bytes(chr(data),'utf-8'))
+				# self.ard.write(bytes(chr(data),'utf-8'))
 				
 				pass
 			elif d['type']=='flamesensor':
@@ -173,19 +173,19 @@ class Application(QApplication):
 		self.typingwidget.finishReading()
 	def __parkcar(self):
 		park=self.typingwidget.park
-		# show the led
-		data=0b00000000
 		if park!='':
-			if park in '0102':
-				if False:
-					pass
-				else:
-					data+=2**2+2**0
-			elif park in '0304':
-				if False:
-					pass
-				else:
-					data+=2**2+2**1
+			if False: # check if we can't choose this slot
+				pass
+			else:
+				data=0b01000000
+				slot=int(park)-1
+				data=setbit(data,slot,1)
+				self.ard.write(bytes(chr(data),'utf-8'))
+				qDebug('loo '+format(data,'b'))
+				pass
+			
+				
+		
 		self.typingwidget.finishReading()
 			
 		

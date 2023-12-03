@@ -10,4 +10,6 @@ change state of led: 0b000
 - a[n]==1 -> turn (n+1) 'th led on (n mean 0,1 or 2)
 change state of servo: 0b001
 - a[n]==1 -> turn (n+1) 'th servo on (n mean 0 or 1)
+change state of an slot: 0b010
+...
 play music: 0b100

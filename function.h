@@ -49,13 +49,17 @@ void _setup()
   Serial.begin(115200); // for communication with extended program on computer
 
 //  Su dung buzzer/loa
-//  pinMode(BUZZER,OUTPUT);
+  // pinMode(BUZZER,OUTPUT);
 
 //  Su dung cam bien khoang cach hong ngoai
   pinMode(IRSENSOR1,INPUT);
   pinMode(IRSENSOR2,INPUT);
   pinMode(IRSENSOR3,INPUT);
   pinMode(IRSENSOR4,INPUT);
+  
+// led 1 la duong o giua
+// led 2 la chi dan ben trai
+// led 3 la chi dan ben phai
   pinMode(LED1,OUTPUT);
   pinMode(LED2,OUTPUT);
   pinMode(LED3,OUTPUT);
@@ -66,11 +70,11 @@ void _setup()
 //  pinMode(HCSENSORD,INPUT);
 
 //  Su dung cac servo1, servo2, servo3
-//  Servo1 dung cho cua chinh
-//  servo2 dung cho cua khu A
-//  servo3 dung cho cua khu B
+//  servo1 dung cho cua khu A
+//  servo2 dung cho cua khu B
   servo[0].attach(SERVO1);
   servo[1].attach(SERVO2);
+  servo[2].attach(SERVO3);
 
   
 

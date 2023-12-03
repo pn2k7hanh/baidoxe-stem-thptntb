@@ -16,7 +16,7 @@ byte led[]={LED1,LED2,LED3};
 
 
 // AM THANH
-#define BUZZER A5
+// #define BUZZER A5
 
 
 //// CAM BIEN KHOI (CO2)
@@ -29,8 +29,9 @@ byte led[]={LED1,LED2,LED3};
 // SERVO
 #define SERVO1 9
 #define SERVO2 10
+#define SERVO3 A5
 #include <Servo.h>
-Servo servo[2];
+Servo servo[3];
 
 // Ban phim mem 4x4
 #include "Keypad.h"
