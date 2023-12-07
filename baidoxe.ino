@@ -9,6 +9,8 @@ void setup()
 //  digitalWrite(LED1,HIGH);
   dongservo(0);
   dongservo(1);
+  dongservo(2);
+  // batdenled(0,true);
   while(!Serial);
 }
 
@@ -31,50 +33,36 @@ void loop()
   {
     byte data=Serial.read();
     byte tp=data>>5;
-//    if(tp==0b000) // type = value of irsensor's led
-//    {
-//      for(int i=0;i<3;i++)
-//      {
-//        batdenled(i,getbit(data,i));
-//      }
-//
-//      
-//    }
-//    else if(tp==0b001)
-//    {
-//      for(int i=0;i<2;i++)
-//      {
-//        if(getbit(data,i))
-//        {
-//          moservo(i);
-//          bservo[i]=true;
-//          servo_timer[i]=millis();
-//        }
-////        else dongservo(i);
-//      }
-//    }
-    if(tp==0b010)
+    if(tp==0b000) // bat tat den led
     {
-      for(int i=0;i<4;i++)
+      for(int i=0;i<3;i++)
       {
-        int j=i/2;
+        batdenled(i,getbit(data,i));
+      }
+    }
+    else if(tp==0b010) // bat tat servo
+    {
+      for(int i=0;i<3;i++)
+      {
+        bool check=getbit(data,4);
         if(getbit(data,i))
         {
-          birsensor[i]=true;
-          irsensor_timer[i]=millis();
-          if(i==0||i==1)
-          {
-            batdenled(0,true);
-            batdenled(1,true);
-          }
-          else // if(i==2||i==3)
-          {
-            batdenled(0,true);
-            batdenled(2,true);
-          }
-          moservo(j);
-          bservo[j]=true;
-          servo_timer[j]=millis();
+          moservo(i,check);
+//          birsensor[i]=true;
+//          irsensor_timer[i]=millis();
+//          if(i==0||i==1)
+//          {
+//            batdenled(0,true);
+//            batdenled(1,true);
+//          }
+//          else // if(i==2||i==3)
+//          {
+//            batdenled(0,true);
+//            batdenled(2,true);
+//          }
+//          moservo(j);
+//          bservo[j]=true;
+//          servo_timer[j]=millis();
         }
       }
     }
@@ -141,17 +129,17 @@ void loop()
     stimer=millis();
   }
 
-  if((unsigned long)(millis()-servo_timer[0])>2000)
-  {
-    if(bsv) moservo(0);
-    else dongservo(0);
-    if(bsv) moservo(1);
-    else dongservo(1);
-    if(bsv) moservo(2);
-    else dongservo(2);
-    bsv=!bsv;
-    servo_timer[0]=millis();
-  }
+  // if((unsigned long)(millis()-servo_timer[0])>2000)
+  // {
+  //   if(bsv) moservo(0);
+  //   else dongservo(0);
+  //   if(bsv) moservo(1);
+  //   else dongservo(1);
+  //   if(bsv) moservo(2);
+  //   else dongservo(2);
+  //   bsv=!bsv;
+  //   servo_timer[0]=millis();
+  // }
   
   
 //  delay(100);

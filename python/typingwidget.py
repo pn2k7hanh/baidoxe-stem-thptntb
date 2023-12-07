@@ -108,6 +108,13 @@ class TypingWidget(QWidget):
 			self.ui.pwWidget.setEnabled(False)
 		
 		self.type=tp
+	def keyPressEvent(self,event):
+		if event.key() in [Qt.Key_0,Qt.Key_1,Qt.Key_2,Qt.Key_3,Qt.Key_4,Qt.Key_5,Qt.Key_6,Qt.Key_7,Qt.Key_8,Qt.Key_9]:
+			key=event.key()-Qt.Key_0
+			self.addKey(str(key))
+		elif event.key() in [Qt.Key_Return,Qt.Key_Enter]:
+			self.addKey('#')
+		pass
 	def updateParkingSlot(self,n,state=True):
 		if state:
 			self.irsensor[n].setPixmap(QPixmap(':/check-square-o'))

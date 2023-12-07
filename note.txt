@@ -7,9 +7,11 @@ state of flamesensor: 0b001
 state of keypad: 0b011
 computer -> arduino
 change state of led: 0b000
-- a[n]==1 -> turn (n+1) 'th led on (n mean 0,1 or 2)
+- a[n]==1 -> turn (n+1) 'th led on (n mean 0 or 1)
 change state of servo: 0b001
-- a[n]==1 -> turn (n+1) 'th servo on (n mean 0 or 1)
-change state of an slot: 0b010
+- if a[4]==1 mean turn servo on
+- else if a[4]==0 mean turn servo off
+- a[n]==1 -> turn (n+1) 'th servo on or off depend on a[4] (n mean 0,1 or 2)
+
 ...
 play music: 0b100

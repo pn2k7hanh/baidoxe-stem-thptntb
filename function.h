@@ -14,7 +14,7 @@ void loop_(); // chay sau khi bat dau vong loop
 // Servo
 #define CUAMO 1
 #define CUADONG 0
-void moservo(int);
+void moservo(int,bool);
 void dongservo(int);
 bool trangthaiservo(int);
 
@@ -72,6 +72,7 @@ void _setup()
 //  Su dung cac servo1, servo2, servo3
 //  servo1 dung cho cua khu A
 //  servo2 dung cho cua khu B
+//  servo3 dung cho cua chinh
   servo[0].attach(SERVO1);
   servo[1].attach(SERVO2);
   servo[2].attach(SERVO3);
@@ -93,9 +94,10 @@ void loop_()
   
 }
 
-void moservo(int cua=0)
+void moservo(int cua=0,bool check=true)
 {
-  servo[cua].write(90);
+  if(check) servo[cua].write(90);
+  else dongservo(cua);
 }
 
 void dongservo(int cua=0)

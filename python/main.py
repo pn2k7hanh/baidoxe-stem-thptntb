@@ -37,9 +37,9 @@ class Application(QApplication):
 		# 	self.ada.runnin=False
 		# 	# self.exit(0)
 		
-		self.parkingslot=[1]*4
+		# self.parkingslot=[1]*4
 		for i in range(4):
-			self.typingwidget.updateParkingSlot(i,self.parkingslot[i])
+			self.typingwidget.updateParkingSlot(i,False)
 		
 		self.ard.readyRead.connect(self.__receive_data_arduino)
 		self.ada.data_changed.connect(self.__receive_data_adafruit)
@@ -51,9 +51,14 @@ class Application(QApplication):
 		self.typingwidget=TypingWidget()
 		self.ardtimerid=self.startTimer(2000,Qt.VeryCoarseTimer)
 		self.defaultPort=''
-		self.username=[]
-		self.password=[]
-		self.servotimerid=-1
+		self.servotimerid=[-1]*4
+		self.parkingslotid=[False]*4
+		# None is no event
+		# True is getting car
+		# False is parking car
+		self.parkingslotstate=[None]*4
+		self.irsensor=[False]*4
+		self.password=[0]*4
 	def timerEvent(self,event):
 		if event.timerId()==self.ardtimerid:
 			if not self.ard.isOpen():
@@ -72,7 +77,7 @@ class Application(QApplication):
 						self.typingwidget.changeMode(False)
 						self.typingwidget.clear()
 						self.typingwidget.finishReading()
-						self.servotimerid=self.startTimer(10000,Qt.VeryCoarseTimer)
+						# self.servotimerid=self.startTimer(10000,Qt.VeryCoarseTimer)
 					else:
 						qDebug('Failed to open '+portname+'!')
 						qDebug('Error: '+self.ard.errorString())
@@ -86,14 +91,47 @@ class Application(QApplication):
 					self.typingwidget.changeMode(False)
 					self.typingwidget.clear()
 					self.typingwidget.finishReading()
-					self.servotimerid=self.startTimer(10000,Qt.VeryCoarseTimer)
+					# self.servotimerid=self.startTimer(10000,Qt.VeryCoarseTimer)
 				else:
 					qDebug('Failed to open '+portname+'!')
 					qDebug('Error: '+self.ard.errorString())
-		# elif event.timerId()==self.servotimerid:
-		# 	data=0b00100011
-		# 	self.ard.write(bytes(chr(data),'utf-8'))
-		# 	qDebug('hmm')
+		for i in range(4):
+			if event.timerId()==self.servotimerid[i]:
+				slot=i
+				if self.parkingslotstate[slot]==None: # error
+					pass
+				elif self.parkingslotstate[slot]==True: # getting car
+					if self.irsensor[slot]==False:
+						self.typingwidget.updateParkingSlot(slot,False)
+						
+						self.parkingslotid[slot]=False
+						self.password[slot]=0
+
+						_id='irsensor'+str(i+1)
+						self.ada.send_data(_id,'square-o')
+				elif self.parkingslotstate[slot]==False: # parking car
+					if self.irsensor[slot]==True:
+						password=self.typingwidget.password
+						self.parkingslotid[slot]=True
+						self.password[slot]=password
+						self.typingwidget.updateParkingSlot(slot,True)
+
+						_id='irsensor'+str(i+1)
+						self.ada.send_data(_id,'check-square-o')
+
+				self.typingwidget.finishReading()
+
+				self.parkingslotstate[slot]=None
+
+				data=0b01000000 # tat servo
+				data+=2**i # set i'th bit from 0 to 1
+				self.ard.write(bytes(chr(data),'utf-8'))
+				data=0b00000000 # tat den led
+				self.ard.write(bytes(chr(data),'utf-8'))
+
+				self.killTimer(self.servotimerid[i])
+				self.servotimerid[i]=-1
+				pass
 	@pyqtSlot()
 	def __receive_data_arduino(self):
 		data=self.ard.readAll()
@@ -106,21 +144,15 @@ class Application(QApplication):
 				for i in range(4):
 					# qDebug('irsensor'+str(i+1)+': '+str(d['irsensor'+str(i+1)]))
 					_id='irsensor'+str(i+1)
-					newvalue=d[_id]
-					# qDebug(_id+' ir '+newvalue)
-					self.typingwidget.updateParkingSlot(i,(newvalue=='check-square-o'))
-					# qDebug(self.ada.get_data(_id)+' lo '+newvalue)
-					# if self.ada.get_data(_id)!=newvalue:
-					self.ada.send_data(_id,newvalue)
-					tmp_i = (0 if (i in [0,1]) else 1)
-					if newvalue=='check-square-o':
-						data=setbit(data,tmp_i,1)
-				# self.ard.write(bytes(chr(data),'utf-8'))
+					# newvalue=d[_id]
+					# _id=i
+					newvalue=(True if (d[_id]=='check-square-o') else False)
+					# self.typingwidget.updateParkingSlot(i,(newvalue=='check-square-o'))
+					# self.ada.send_data(_id,newvalue)
+					self.irsensor[i]=newvalue
 				
 				pass
 			elif d['type']=='flamesensor':
-				# qDebug('flamesensor: '+str(d['value']))
-				# if self.ada.get_data('flamesensor'):
 				if d['value']==1:
 					self.ada.send_data('state','flame')
 				else:
@@ -149,44 +181,90 @@ class Application(QApplication):
 				# 	if self.ada.get_data('irsensor'+str(i+1))=='check-square-o':
 				# 		data=setbit(data,i,1)
 				# self.ard.write(bytes(chr(data),'utf-8'))
+			elif 'door' in changed:
+				state=self.ada.get_data('door')
+				if state=='mocua':
+					data=0b01010100
+					self.ard.write(bytes(chr(data),'utf-8'))
+				elif state=='dongcua':
+					data=0b01000100
+					self.ard.write(bytes(chr(data),'utf-8'))
+				pass
 	
 	@pyqtSlot()
 	def __getcar(self):
 		park=self.typingwidget.park
-		# show the led
-		data=0b00000000
+		password=self.typingwidget.password
 		if park!='':
-			if park in '0102':
-				if False:
-					pass
-				else:
-					data+=2**2+2**0
-			elif park in '0304':
-				if False:
-					pass
-				else:
-					data+=2**2+2**1
-			else:
+			slot=int(park)-1
+			qDebug(str(slot))
+			if not (slot in [0,1,2,3]):
 				self.typingwidget.notifical('Xin vui long nhap dung ma so de xe!')
+			elif not self.parkingslotid[slot]:
+				self.typingwidget.notifical('Cho trong nay hien chua co xe!')
+			elif password!=self.password[slot]:
+				self.typingwidget.notifical('Mat khau khong dung!')
+			else:
+				data=0b01010000
+				servo=slot
+				data=setbit(data,servo,1)
+				self.ard.write(bytes(chr(data),'utf-8'))
 				
-		self.ard.write(bytes(chr(data),'utf-8'))
+				self.parkingslotstate[slot]=True
+				self.servotimerid[servo]=self.startTimer(1000,Qt.VeryCoarseTimer)
+
+				# bat den led
+				data=0b00000000
+				if park in '0102':
+					data+=2**2+2**0
+				elif park in '0304':
+					data+=2**2+2**1
+				self.ard.write(bytes(chr(data),'utf-8'))
+
+				pass
+		else:
+			self.typingwidget.notifical('Xin vui long nhap dung ma so de xe!')
+				
+		# self.ard.write(bytes(chr(data),'utf-8'))
 		self.typingwidget.finishReading()
 	def __parkcar(self):
 		park=self.typingwidget.park
 		if park!='':
-			if False: # check if we can't choose this slot
-				pass
+			slot=int(park)-1
+			if not (slot in [0,1,2,3]):
+				self.typingwidget.notifical('Xin vui long nhap dung ma so de xe!')
+			elif self.parkingslotid[slot]:
+				self.typingwidget.notifical('Noi do xe '+str(slot+1)+' da co nguoi, vui long chon noi do xe khac!')
 			else:
-				data=0b01000000
-				slot=int(park)-1
-				data=setbit(data,slot,1)
+				data=0b01010000
+				# servo=int(slot/2)
+				servo=slot
+				qDebug(str(slot)+str(servo))
+				data=setbit(data,servo,1)
 				self.ard.write(bytes(chr(data),'utf-8'))
+				
+				# will be moved this block
+				# self.parkingslotid[slot]=True
+				self.parkingslotstate[slot]=False
+				# self.password[slot]=password
+
+				self.servotimerid[servo]=self.startTimer(1000,Qt.VeryCoarseTimer)
+
+				# bat den led
+				data=0b00000000
+				if park in '0102':
+					data+=2**2+2**0
+				elif park in '0304':
+					data+=2**2+2**1
+				self.ard.write(bytes(chr(data),'utf-8'))
+
 				qDebug('loo '+format(data,'b'))
 				pass
+		else:
+			self.typingwidget.notifical('Xin vui long nhap dung ma so de xe!')
 			
 				
 		
-		self.typingwidget.finishReading()
 			
 		
 		

@@ -12,7 +12,7 @@ class Adafruit(QThread):
 		QThread.__init__(self,parent)
 		self.__define()
 	def __define(self):
-		self.ada=Client('adantb','aio_QsXg83R1YZxHcqAslUZfltYtOtZD')
+		self.ada=Client('adantb','aio_blst8874sXag7pmG9qJQeujqhR2x')
 		self.data_mutex=QMutex()
 		self.data=dict()
 		self.data['irsensor1']='unknowed'
@@ -20,6 +20,7 @@ class Adafruit(QThread):
 		self.data['irsensor3']='unknowed'
 		self.data['irsensor4']='unknowed'
 		self.data['state']='unknowed'
+		self.data['door']='unknowed'
 		self.runnin=True
 		self.first_run=True
 		self.queue_mutex=QMutex()
@@ -51,7 +52,7 @@ class Adafruit(QThread):
 		return value
 	def list_changed(self):
 		self.list_change_mutex.lock()
-		changed=self.list_change()
+		changed=self.list_change
 		self.list_change_mutex.unlock()
 		return changed
 	def run(self):
@@ -64,6 +65,7 @@ class Adafruit(QThread):
 			# 	self.queue.put(self.Receive('Receive','irsensor2'))
 			# 	self.queue.put(self.Receive('Receive','irsensor3'))
 			# 	self.queue.put(self.Receive('Receive','irsensor4'))
+			self.queue.put(self.Receive('Receive','door'))
 			self.queue_mutex.unlock()
 			# qDebug('debug')
 			changed=False
