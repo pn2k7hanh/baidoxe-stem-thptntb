@@ -1,3 +1,0 @@
-pyqt5
-adafruit_io
-cryptography
