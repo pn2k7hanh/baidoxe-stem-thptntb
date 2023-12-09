@@ -1,0 +1,8 @@
+# Python file
+__pycache__/
+# Qt generator file
+ui_*.py
+*_rc.py
+# Execute file
+*.exe
+*.dll

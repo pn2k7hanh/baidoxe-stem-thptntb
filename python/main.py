@@ -45,6 +45,11 @@ class Application(QApplication):
 		self.ada.data_changed.connect(self.__receive_data_adafruit)
 		self.typingwidget.getcar.connect(self.__getcar)
 		self.typingwidget.parkcar.connect(self.__parkcar)
+
+		self.ada.send_data('irsensor1','square-o')
+		self.ada.send_data('irsensor2','square-o')
+		self.ada.send_data('irsensor3','square-o')
+		self.ada.send_data('irsensor4','square-o')
 	def __define(self):
 		self.ard=QSerialPort()
 		self.ada=Adafruit()
@@ -211,7 +216,7 @@ class Application(QApplication):
 				self.ard.write(bytes(chr(data),'utf-8'))
 				
 				self.parkingslotstate[slot]=True
-				self.servotimerid[servo]=self.startTimer(1000,Qt.VeryCoarseTimer)
+				self.servotimerid[servo]=self.startTimer(5000,Qt.VeryCoarseTimer)
 
 				# bat den led
 				data=0b00000000
@@ -248,7 +253,7 @@ class Application(QApplication):
 				self.parkingslotstate[slot]=False
 				# self.password[slot]=password
 
-				self.servotimerid[servo]=self.startTimer(1000,Qt.VeryCoarseTimer)
+				self.servotimerid[servo]=self.startTimer(5000,Qt.VeryCoarseTimer)
 
 				# bat den led
 				data=0b00000000
@@ -275,7 +280,7 @@ if __name__=='__main__':
 	# 	print(port.portName(),'(',port.description(),')',sep='')
 	# print('Select arduino port: ',end='')
 	# app=Application(input().strip(),115200,sys.argv)
-	portname='COM5'
+	portname='COM3'
 	# for port in QSerialPortInfo.availablePorts():
 	# 	if 'Arduino Uno' in port.description():
 	# 		portname=port.portName()

@@ -6,7 +6,7 @@ set "PY=python"
 where python3 /Q && set "PY=python3"
 
 
-set "TMPP=%CD:~0,2%\DATA\PortableApp\python3810x86\python.exe"
+set "TMPP=%CD:~0,2%\DATA\PortableApp\python3810x64\python.exe"
 if exist "%TMPP%" (set "PY=%TMPP%")
 echo %TMPP%
 
